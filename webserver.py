@@ -38,8 +38,8 @@ class webServerHandler(BaseHTTPRequestHandler):
             self.end_headers()
 
             ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
-            print(ctype,pdict)
-            if ctype == 'multpart/form-data':
+            # print(ctype,pdict)
+            if ctype == 'multipart/form-data':
                 fields = cgi.parse_multipart(self.rfile, pdict)
                 messageContent = fields.get('message')
 
@@ -47,9 +47,10 @@ class webServerHandler(BaseHTTPRequestHandler):
             output += "<html><body>"
             output += "<h2> Okay, how about this: </h2>"
             output += "<h1> %s </h1>" % messageContent[0]
+            output += "<form method='POST' enctype='multipart/form-data' action='/hello'><h2>What would you like me to say ?</h2><input name='message' type='text'><input type='submit' value='Submit'></form>"            
             output += "</body></html>"
             self.wfile.write(output)
-            print(output)
+            # print(output)
 
         except:
             pass
