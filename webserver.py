@@ -25,7 +25,7 @@ class webServerHandler(BaseHTTPRequestHandler):
                 for resto in restaurants:
                     output += resto.name
                     output += "<br>"                    
-                    output += "<a href='#'>Edit</a><br>"
+                    output += "<a href='/restaurants/%s/edit'>Edit</a><br>"%resto.id
                     output += "<a href='#'>Delete</a><br>"
                     output += "<br>"
 
@@ -45,6 +45,33 @@ class webServerHandler(BaseHTTPRequestHandler):
                 self.wfile.write(output)
                 # print(output)
                 return
+            if self.path.endswith('/restaurants/new'):
+                self.send_response(200) # Response code for Successful GET
+                self.send_header('Content-type','text/html')
+                self.end_headers()
+                
+                output = "<html><body>"
+                output += "<h1>Make a New Restaurant</h1>"
+                output += "<form method='POST' enctype='multipart/form-data' action='/restaurants/new'><input name='name' type='text'><input type='submit' value='Create'></form>"
+                output += "</body></html>"
+                self.wfile.write(output)
+                # print(output)
+                return
+            if self.path.endswith('/edit'):
+                self.send_response(200) # Response code for Successful GET
+                self.send_header('Content-type','text/html')
+                self.end_headers()
+                
+                restaurantId = self.path.split('/')[2]
+
+                restaurant = session.query(Restaurant).filter_by(id = restaurantId).one()
+
+                output = "<html><body>"
+                output += "<h1>%s</h1>"%restaurant.name
+                output += "<form method='POST' enctype='multipart/form-data' action='/restaurants/%s/edit'><input name='name' placeholder='%s' type='text'><input type='submit' value='Rename'></form>"%(restaurantId,restaurant.name)
+                output += "</body></html>"
+                self.wfile.write(output)
+                
         except IOError:
             self.send_error(404,"File not found%s"%self.path)
 
@@ -62,8 +89,25 @@ class webServerHandler(BaseHTTPRequestHandler):
                     restaurantName = fields.get('name')
                 
                 print(restaurantName)
-                newRestaurant = Restaurant(name = restaurantName[0])
+                newRestaurant    = Restaurant(name = restaurantName[0])
                 session.add(newRestaurant)
+                session.commit()
+                return
+            if self.path.endswith('/edit'):
+                self.send_response(301) # Response code for Successful POST
+                self.send_header('location','/restaurants')
+                self.end_headers()
+
+                ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
+                # print(ctype,pdict)
+                if ctype == 'multipart/form-data':
+                    fields = cgi.parse_multipart(self.rfile, pdict)
+                    restaurantName = fields.get('name')
+                
+                restaurantId = self.path.split('/')[2]
+                restaurant = session.query(Restaurant).filter_by(id = restaurantId).one()
+                restaurant.name = restaurantName[0]
+                session.add(restaurant)
                 session.commit()
                 return
         except:
