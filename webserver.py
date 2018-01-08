@@ -51,7 +51,7 @@ class webServerHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
             if self.path.endswith('/restaurants/new'):
-                self.send_response(302) # Response code for Successful POST
+                self.send_response(301) # Response code for Successful POST
                 self.send_header('location','/restaurants')
                 self.end_headers()
 
