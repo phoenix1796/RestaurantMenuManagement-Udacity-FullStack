@@ -49,7 +49,7 @@ def editMenuItem(restaurant_id, menu_id):
         flash("Menu item edited.")
         return redirect(url_for('restaurantMenu',restaurant_id = restaurant_id))
     else:
-        return render_template('editMenuItem.html',restaurant_id = restaurant_id,menu_id = menu_id, i = editedItem)
+        return render_template('editMenuItem.html',restaurant_id = restaurant_id,menu_id = menu_id, item = editedItem)
      # return "page to edit a menu item. Task 2 complete!"
 
 # Task 3: Create a route for deleteMenuItem function here
